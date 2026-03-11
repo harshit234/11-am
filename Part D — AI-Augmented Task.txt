@@ -1,0 +1,123 @@
+Part D — AI-Augmented Task
+1️⃣ Exact Prompt Used with AI
+Write a Python script that reads a CSV file and automatically detects the delimiter.
+Possible delimiters include comma (,), tab (\t), semicolon (;), and pipe (|).
+
+The script should:
+1. Detect the delimiter automatically.
+2. Read the CSV file correctly regardless of delimiter.
+3. Convert the CSV data into JSON format.
+4. Save the output as a formatted JSON file.
+
+Use Python's csv module if possible and handle errors such as missing files.
+Add comments to explain the code.
+2️⃣ AI-Generated Python Code
+import csv
+import json
+import sys
+
+def detect_delimiter(file_path):
+    with open(file_path, 'r', newline='', encoding='utf-8') as f:
+        sample = f.read(1024)
+        sniffer = csv.Sniffer()
+        dialect = sniffer.sniff(sample, delimiters=[',', '\t', ';', '|'])
+        return dialect.delimiter
+
+
+def csv_to_json(csv_file, json_file):
+    try:
+        delimiter = detect_delimiter(csv_file)
+        print(f"Detected delimiter: '{delimiter}'")
+
+        with open(csv_file, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter=delimiter)
+            data = list(reader)
+
+        with open(json_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4)
+
+        print(f"JSON file successfully created: {json_file}")
+
+    except FileNotFoundError:
+        print("Error: CSV file not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: python script.py input.csv output.json")
+    else:
+        csv_to_json(sys.argv[1], sys.argv[2])
+3️⃣ Testing the Script
+Test File 1 (Comma Delimited)
+
+input1.csv
+
+name,age,city
+Alice,25,London
+Bob,30,Paris
+Charlie,28,Berlin
+
+Command:
+
+python script.py input1.csv output1.json
+
+Output JSON:
+
+[
+    {
+        "name": "Alice",
+        "age": "25",
+        "city": "London"
+    },
+    {
+        "name": "Bob",
+        "age": "30",
+        "city": "Paris"
+    },
+    {
+        "name": "Charlie",
+        "age": "28",
+        "city": "Berlin"
+    }
+]
+Test File 2 (Semicolon Delimited)
+
+input2.csv
+
+name;age;city
+John;22;New York
+Sara;27;Toronto
+Mike;31;Sydney
+
+Command:
+
+python script.py input2.csv output2.json
+
+Output JSON:
+
+[
+    {
+        "name": "John",
+        "age": "22",
+        "city": "New York"
+    },
+    {
+        "name": "Sara",
+        "age": "27",
+        "city": "Toronto"
+    },
+    {
+        "name": "Mike",
+        "age": "31",
+        "city": "Sydney"
+    }
+]
+4️⃣ Critical Evaluation (200 Words)
+
+The AI-generated script successfully reads a CSV file, detects the delimiter automatically, and converts the data into a formatted JSON file. One major strength is that the script uses Python’s csv.Sniffer() class to detect the delimiter from a sample of the file. This makes the script flexible because it can correctly process different CSV formats such as comma, tab, semicolon, or pipe separated files. The use of csv.DictReader is also effective because it automatically maps CSV headers to JSON keys, producing structured output. Additionally, the script includes basic error handling for missing files and incorrect usage of command-line arguments.
+
+However, the AI-generated code does have some limitations. For example, it only reads the first 1024 characters to detect the delimiter, which may fail if the file contains inconsistent formatting or long metadata lines at the beginning. It also does not explicitly validate whether headers exist in the CSV file. Edge cases such as empty files, malformed rows, or inconsistent delimiters across lines are not fully handled. Another limitation is that all values are stored as strings instead of detecting numeric types.
+
+To improve the script, I would add validation for empty files, stronger error handling for malformed rows, and automatic data type detection for numbers and booleans. I would also add logging and support for larger files by processing them in streaming mode instead of loading everything into memory.
